@@ -18,7 +18,7 @@
 module.exports ={
     HOST:'localhost',
     USER:"root",
-    PASSWORD:"",
+    PASSWORD:"rootpassword",
     DB:"dryexpressbd",
     dialect:'mysql',
 

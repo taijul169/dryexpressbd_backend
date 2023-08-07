@@ -61,7 +61,7 @@ const addToCart = async (req,res)=>{
             profit_percent:req.body.profit_percent,
             isActiveDiscount:req.body.isActiveDiscount,
             discount_percent:req.body.discount_percent,
-            combination_item:JSON.stringify(req.body.service_id)
+            combination_item:JSON.stringify(req.body.service_id.sort())
            // price:req.body.totalprice
         }
         const alreadyExist = await Cartitem.findOne({
@@ -115,6 +115,30 @@ const addToCart = async (req,res)=>{
 // main work
 
 // 1. create Shop
+
+// get single cart item by id
+const getsingleCartItem = async(req,res)=>{
+    try {
+       const  cartitem = await Cartitem.findOne({
+            where:{
+                id:req.params.id
+            },
+            include:[{
+                model:Cartservice,
+                as:'cartservice',
+                required:false,
+            },]
+        })
+        let price = 0;
+        cartitem.cartservice.map((item, idx)=>{
+            price =  price + item.price
+        })
+        cartitem.price =  price
+        res.status(200).send({cartitem})
+    } catch (error) {
+        res.send(error)
+    }
+}
 // get cartitem
 const getCartItem =  async (req,res)=>{
     try {
@@ -284,5 +308,6 @@ module.exports ={
     upload,
     getCartItem,
     deleteCartItem,
-    deleteCartItembytoken
+    deleteCartItembytoken,
+    getsingleCartItem
 }
