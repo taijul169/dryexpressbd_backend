@@ -24,6 +24,7 @@
  router.put('/updateproduct/:id', productController.updateProduct)
 
  router.put('/updateproductlatest/:id', productController.updateProductLatest)
+ router.put('/updateproductlatestadmin/:id', productController.updateProductLatestAdmin)
  router.put('/productstatusupdate/:id/:status', productController.productStatusUpdate)
  router.delete('/deleteproduct/:id', productController.deleteProduct)
 

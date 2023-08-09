@@ -146,6 +146,60 @@ const updateProductLatest = async (req,res) =>{
    
 }
 
+const updateProductLatestAdmin = async (req,res) =>{
+    try {
+        let id = req.params.id
+        if(req.body.discount_percent){
+            req.body.discount_percent = req.body.discount_percent
+        }
+        if(req.body.isActiveDiscount){
+            req.body.isActiveDiscount=true
+        }else{
+            req.body.isActiveDiscount=false
+            req.body.discount_percent= 0
+        }
+
+        let {title,category_class,discount_percent,isActiveDiscount,description,service_id,price,servicetype_name,shop_id,profit_percent} = req.body
+        
+ 
+        price = price.filter(item => item !== '')
+        console.log("req body",price)
+        const product = await Product.update({title,category_class,discount_percent,isActiveDiscount,description,profit_percent},{where:{id:id}})
+        if(price){
+            console.log("yes im price in",price.length)
+            if(price.length>0){
+                // deleting first
+                const deleteservice = await Servicetype.destroy({
+                    where:{
+                        product_id:id
+                    }
+                })
+                console.log("deletedservice",deleteservice)
+                // updating service types
+                price.map(async(currenElm,idx)=>{
+                    //console.log(currenElm)
+                    if(currenElm){
+                        const servicetype = await Servicetype.create({
+                            shop_id:shop_id,
+                            name:req.body.servicetype_name[idx],
+                            service_id:req.body.service_id[idx],
+                            price:currenElm,
+                            product_id:id
+                        })
+                    }
+                   return currenElm 
+                })
+             }
+        }
+        
+        res.status(200).send({product,msg:'success',code:200})
+    
+    } catch (error) {
+        res.status(400).send({error})
+        console.log('error',error)
+    }
+   
+}
 // 3 get single product
 
 const getOneProductByIdLatest = async (req,res) =>{
@@ -672,6 +726,7 @@ module.exports ={
     addProductLatest,
     getSingleProductDetails,
     getOneProductByIdLatest,
-    updateProductLatest
+    updateProductLatest,
+    updateProductLatestAdmin
     
 }
