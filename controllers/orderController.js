@@ -567,6 +567,7 @@ const getsingleOrderbyorderid = async (req,res) =>{
         })
         if(data){
             console.log(data)
+            data[0].createdAt = new Date(data[0].createdAt).toLocaleDateString();
             data[0].shop.photo = `${req.protocol+"://"+req.headers.host}/${data[0].shop.photo}`
              let discountedTotal=0;
              if(data[0].discount){
@@ -737,10 +738,11 @@ const updatePaymentStatus =  async(req,res) =>{
         if(status == 'failed'){
             const order =  await OrderTable.update({paymentstatus:false},{where:{id:order_id}})
             res.status(400).send({order,code:400,msg:'failed'})
-        }else{
-            const order =  await OrderTable.update({paymentstatus:true,ispaidtolaundry:true,paymentmethod:'cash-on-delivery'},{where:{id:order_id}})
-            res.status(200).send({order,code:200,msg:'success'})
         }
+        // else{
+        //     const order =  await OrderTable.update({paymentstatus:true,ispaidtolaundry:true,paymentmethod:'cash-on-delivery'},{where:{id:order_id}})
+        //     res.status(200).send({order,code:200,msg:'success'})
+        // }
     } catch (error) {
         console.log("error",error)
         //res.status(400).send({code:400,msg:'Failed'})
@@ -1227,12 +1229,10 @@ const duetoLaundryDetails = async (req,res)=>{
       
         let condition = {
             paymentstatus:true,
-            ispaidtolaundry:false,
+            //ispaidtolaundry:false,
             paymentmethod:'Online',
             ispaidtodryexpress:true,
         };
-        
- 
         let unpaidData =  await OrderTable.findAll({
             attributes:[[Sequelize.fn('count',Sequelize.col('shop_id')),'count'],[Sequelize.fn('sum', Sequelize.col('profitamount')), 'total_profit'],[Sequelize.fn('sum', Sequelize.col('total')), 'total']],
             include:[
@@ -1248,10 +1248,9 @@ const duetoLaundryDetails = async (req,res)=>{
             where:condition,
         })
 
+
+
         // where ispaidtolaundry:true
-      
-        
- 
         let paidtoLaundryData =  await OrderTable.findAll({
             attributes:[[Sequelize.fn('count',Sequelize.col('shop_id')),'count'],[Sequelize.fn('sum', Sequelize.col('profitamount')), 'total_profit'],[Sequelize.fn('sum', Sequelize.col('total')), 'total']],
             include:[
