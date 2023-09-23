@@ -62,4 +62,6 @@
 router_order.get('/dueorderlisttodryexpressbd/:shop_id',orderController.dueorderlisttodryexpressbd)
 router_order.get('/dueorderlistfromdryexpressbd/:shop_id',orderController.dueorderlistfromdryexpressbd)
 
+router_order.put('/orderstatusupdatefordisbursedbyid/:orderid',orderController.updatedisburesorderstatus)
+
  module.exports =  router_order

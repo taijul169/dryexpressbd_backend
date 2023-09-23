@@ -1,5 +1,5 @@
 const db = require('../models')
-const { Op } = require('sequelize');
+const { Op, json } = require('sequelize');
 const Sequelize =  require('sequelize')
 //const { products } = require('../models');
 // create main Model
@@ -19,6 +19,7 @@ const Orderedservices = db.orderedservices
 
 // 1. create Shop
 const findProfit = (data)=>{
+    
     let totalProfit = 0;
     data.map((item,idx)=>{
        return  totalProfit = totalProfit + ((item.price* item.amount * item.profit_percent)/100)
@@ -27,6 +28,10 @@ const findProfit = (data)=>{
 }
 
 const findProfitlatest = (data)=>{
+    // console.log("before data",data)
+    // data  = JSON.parse(JSON.stringify(data))
+    // console.log("after data",data)
+   // data =  JSON.parse(new data)
     let totalProfit = 0;
     data.map((item,idx)=>{
        return  totalProfit = totalProfit + ((item.price * item.profit_percent)/100)
@@ -565,7 +570,7 @@ const getsingleOrderbyorderid = async (req,res) =>{
            where: { id:id },
           
         })
-        if(data){
+        if(data.length>0){
             console.log(data)
             data[0].createdAt = new Date(data[0].createdAt).toLocaleDateString();
             data[0].shop.photo = `${req.protocol+"://"+req.headers.host}/${data[0].shop.photo}`
@@ -607,7 +612,7 @@ const getsingleOrderbyorderid = async (req,res) =>{
         }
     } catch (error) {
         console.log("errors:",error)
-        res.status(404).send({err:error})  
+        res.status(400).send({err:error})  
     }
    
     
@@ -1409,6 +1414,17 @@ const dueorderlisttodryexpressbd = async(req,res)=>{
     res.status(200).send(orderlist)
 }
 
+
+const updatedisburesorderstatus = async(req,res)=>{
+    const orderlist  =  await OrderTable.update({
+        ispaidtolaundry:true,
+       
+    }, {where:{
+        id:req.params.orderid
+    }})
+    res.status(200).send({orderlist,code:200,msg:'updated'})
+}
+
 module.exports ={
     addOrder,
     getAllOrders,
@@ -1444,6 +1460,6 @@ module.exports ={
     dueorderlistfromdryexpressbd,
     dueorderlisttodryexpressbd,
     addOrderlatest,
-   
+    updatedisburesorderstatus,
 
 }

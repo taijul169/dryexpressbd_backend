@@ -10,11 +10,13 @@ router.get('/getcartitem',cartController.getCartItem)
 router.get('/getsinglecartitem/:id',cartController.getsingleCartItem)
 router.delete('/deletetecartitem/:id',cartController.deleteCartItem)
 router.delete('/deletetecartitembytoken',cartController.deleteCartItembytoken)
+router.put('/updatecartquantity',cartController.updateCartQuantity)
 // product router
  router.post('/addorderstatus', orderstatusController.addAccept)
  router.get('/getorderstatusbyorderid/:order_id',orderstatusController.getOrderStatus)
  router.put('/orderstatusupdatebyorderid/:order_id/:status',orderstatusController.orderStatusUpdate)
  router.put('/orderstatusupdatecancelbyorderid/:order_id/:status',orderstatusController.orderStatusUpdateforcancel)
+
  //router.get('/allcitywitharea', orderstatusController.getAllCitys)
  
 

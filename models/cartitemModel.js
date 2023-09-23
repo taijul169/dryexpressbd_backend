@@ -41,6 +41,10 @@ module.exports =  (sequelize, DataTypes) =>{
             type:DataTypes.STRING,
             defaultValue:null
         },
+        wrapper_type:{
+            type:DataTypes.STRING,
+            defaultValue:'Folding'
+        },
     })
 
     return Cartitem;

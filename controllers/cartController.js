@@ -61,6 +61,7 @@ const addToCart = async (req,res)=>{
             profit_percent:req.body.profit_percent,
             isActiveDiscount:req.body.isActiveDiscount,
             discount_percent:req.body.discount_percent,
+            wrapper_type:req.body.wrapper_type,
             combination_item:JSON.stringify(req.body.service_id.sort())
            // price:req.body.totalprice
         }
@@ -102,7 +103,7 @@ const addToCart = async (req,res)=>{
                 }
          
             })
-            res.status(201).send({cartitem,code:201,msg:'success'})
+            res.status(201).send({cartitem,code:201,msg:'cart added success'})
         }
         
 
@@ -207,6 +208,26 @@ const deleteCartItem =async(req,res)=>{
     }
 }
 
+const updateCartQuantity  = async (req,res)=>{
+   try {
+    const update =   await Cartitem.update({
+           quantity:req.body.quantity
+       },{where:{
+           id:req.body.id
+       }})
+       const updatecartservice =   await Cartservice.update({
+        quantity:req.body.quantity
+    },{where:{
+        cartitem_id:req.body.id
+    }})  
+       
+     res.status(200).send(update)  
+   } catch (error) {
+       res.send(error)
+       console.log("error",error)
+   }
+} 
+
 // deleting cart item when order has been placed
 const deleteCartItembytoken  = async(req,res)=>{
     try {
@@ -309,5 +330,6 @@ module.exports ={
     getCartItem,
     deleteCartItem,
     deleteCartItembytoken,
-    getsingleCartItem
+    getsingleCartItem,
+    updateCartQuantity
 }

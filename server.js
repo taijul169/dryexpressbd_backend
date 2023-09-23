@@ -37,8 +37,10 @@ const message = require('./routes/messageRouter')
 const code =  require('./routes/codeRouter')
 const payment =  require('./routes/paymenthistoryRouter')
 const cart = require('./routes/cartRouter')
-
-
+const account = require('./routes/accountRouter')
+const offeruser =  require('./routes/offeruserRouter')
+const offer =  require('./routes/offerRouter')
+const coupon =  require('./routes/couponRouter')
 app.use('/api/customer',router_customer);
 app.use('/api/shop',router_shop);
 app.use('/api/products',router);
@@ -56,6 +58,10 @@ app.use('/api/message',message);
 app.use('/api/code',code);
 app.use('/api/payment',payment);
 app.use('/api/cart',cart)
+app.use('/api/account',account)
+app.use('/api/offeruser',offeruser)
+app.use('/api/offer',offer)
+app.use('/api/coupon',coupon)
 // testing api
 app.get("/",(req,res)=>{
     res.json({message:"hello from api" })

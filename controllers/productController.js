@@ -234,10 +234,18 @@ const getSingleProductDetails =  async (req,res)=>{
                 as:'servicetype',
                 required:false
             },
+            {
+                model:Shop,
+                as:'shop',
+                required:false
+            },
             
         ],
         where:{id:id}
        })
+  
+       product.productimage.image = `${req.protocol+"://"+req.headers.host}/${product.productimage.image}`
+       product.shop.photo = `${req.protocol+"://"+req.headers.host}/${product.shop.photo}`
        res.status(200).send(product)
 }
 

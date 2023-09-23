@@ -62,13 +62,37 @@ db.servicenames = require('./servicenameModel')(sequelize,DataTypes)
 db.orderservicetypes = require('./orderservicetypeModel')(sequelize,DataTypes)
 db.cartitems = require('./cartitemModel')(sequelize,DataTypes)
 db.cartservices = require('./cartserviceModel')(sequelize,DataTypes)
-
+db.offeruser = require('./offeruserModel')(sequelize,DataTypes)
 db.orderedservices =  require('./orderedserviceModel')(sequelize,DataTypes)
+db.offers = require('./offerModel')(sequelize,DataTypes)
+db.coupons =  require('./couponModel')(sequelize,DataTypes)
 db.sequelize.sync({
     force:false,
 })
 .then(()=>{ 
     console.log("yes re-sync done!")
+})
+
+// offer and registered user relastionship
+
+db.offers.hasMany(db.offeruser,{
+    foreignKey:'offer_id',
+    as:'offeruser'
+})
+
+db.offeruser.belongsTo(db.offers,{
+    foreignKey:'offer_id',
+    as:'offer'
+})
+
+// one to many relationship between shops and accounts
+db.shops.hasMany(db.accounts,{
+    foreignKey:'shop_id',
+    as:'account'
+})
+db.accounts.belongsTo(db.shops,{
+    foreignKey:'shop_id',
+    as:'shop'
 })
 
 // relationship between ordereditem and ordered servies

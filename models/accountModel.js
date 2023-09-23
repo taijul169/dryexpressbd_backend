@@ -1,5 +1,9 @@
 
-
+const getTime =  ()=>{
+    const d = new Date();
+    let time = d.getTime();
+    return time
+}
 module.exports =  (sequelize, DataTypes) =>{
     const Account = sequelize.define('account',{
       
@@ -7,17 +11,32 @@ module.exports =  (sequelize, DataTypes) =>{
             type:DataTypes.INTEGER,
             allowNull:false
         },
-        duetolaundry:{
-            type:DataTypes.INTEGER
+        amount:{
+            type:DataTypes.INTEGER,
+            allowNull:false
         },
-        duefromlaundry:{
-            type:DataTypes.INTEGER
+        paidtolaundry:{
+            type:DataTypes.BOOLEAN,
         },
-        lastupdaedAt:{
-            type:DataTypes.STRING
+        confirmedbylaundry:{
+            type:DataTypes.BOOLEAN,
+            defaultValue:false
         },
-
-        
+        paymentmethod:{
+            type:DataTypes.STRING,
+            defaultValue:null
+        },
+        createdTime:{
+            type:DataTypes.STRING,
+            defaultValue:getTime()
+        },
+        updatedTime:{
+            type:DataTypes.STRING,
+            defaultValue:null
+        },
+        orderid:{
+            type:DataTypes.STRING,
+        },   
         
     })
 
