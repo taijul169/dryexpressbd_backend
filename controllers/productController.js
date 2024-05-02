@@ -49,7 +49,7 @@ const addProductLatest = async (req,res)=>{
             category_class:req.body.category_class,
             product_image_id:req.body.product_image_id,
             isActiveDiscount:false,
-            discount_percent:req.body.discount_percent ? req.body.discount_percent :null
+            discount_percent:req.body.discount_percent ? req.body.discount_percent :0
         }
     
         //const ExistProduct =  await Servicetype.findOne({where:{name:info.title,shop_id:info.shop_id}})

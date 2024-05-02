@@ -3,7 +3,7 @@ const randomstring = require("randomstring");
 const multer = require("multer");
 const path = require('path')
 const sequelize =  require('sequelize');
-
+const bcrypt = require('bcrypt');
 //const { products } = require('../models');
 // create main Model
 const Courier = db.couriers;
@@ -41,7 +41,12 @@ const updateImageCourier = async (req,res)=>{
     }
 }
 // 1. create Courier
-
+const hassingPassword = async(password)=>{
+    console.log("hashedPassword before",password)
+    const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("hashedPassword after",hashedPassword)
+    return hashedPassword;
+}
 const addCourier = async (req,res)=>{
     const courierdata = await Courier.findOne({where:{phone:req.body.phone}})
     console.log("courier data",courierdata)
@@ -54,7 +59,7 @@ const addCourier = async (req,res)=>{
                 phone:req.body.phone,
                 shop_id:req.body.shop_id,
                 address:req.body.address,
-                password:req.body.password,
+                password:await bcrypt.hash(req.body.password, 10),
                 photo:req.file.path,
                 city:req.body.city,
                 area:req.body.area,
@@ -76,7 +81,7 @@ const addCourier = async (req,res)=>{
                 phone:req.body.phone,
                 shop_id:req.body.shop_id,
                 address:req.body.address,
-                password:req.body.password,
+                password:await bcrypt.hash(req.body.password, 10),
                 photo:'',
                 city:req.body.city,
                 area:req.body.area,
@@ -168,7 +173,6 @@ const updateCourier = async (req,res) =>{
                 phone:req.body.phone,
                 shop_id:req.body.shop_id,
                 address:req.body.address,
-                password:req.body.password,
                 city:req.body.city,
                 area:req.body.area,
                 nid:req.body.nid,
@@ -184,7 +188,6 @@ const updateCourier = async (req,res) =>{
             phone:req.body.phone,
             shop_id:req.body.shop_id,
             address:req.body.address,
-            password:req.body.password,
             city:req.body.city,
             area:req.body.area,
             nid:req.body.nid,
@@ -205,8 +208,6 @@ const updateCourier = async (req,res) =>{
 // 6 get published Courier 
 
 const getActiveCourier = async (req,res) =>{
-
-   
    const data =  await Courier.findAll({
        where:{isactive:true}
    })
@@ -261,17 +262,42 @@ const getCouriersproductsbyfilters = async (req,res) =>{
 // }
 
 
+// const Courierlogin =  async (req,res) =>{
+//     const {phone, password} =  req.body;
+//     const data =  await Courier.findOne({
+//         where:{phone:phone, password:password }
+//     })
+//     if(data == null){
+//         res.status(404).send({data:{},msg:'Invalid Credentials',code:404,status:false})
+//     }
+//     else{
+//         //console.log("data",data)
+//         res.status(200).send({data,code:200, msg:'Successfully Login',status:true})
+//     }
+    
+
+// }
+
 const Courierlogin =  async (req,res) =>{
     const {phone, password} =  req.body;
     const data =  await Courier.findOne({
-        where:{phone:phone, password:password }
+        where:{phone:phone }
     })
+
     if(data == null){
-        res.status(404).send({msg:'data not found!!!!',code:404})
+        return res.status(404).send({data:{},msg:'Invalid Credentials',code:404,status:false})
+         // Compare the provided password with the stored hashed password 
     }
     else{
-        //console.log("data",data)
-        res.status(200).send({data,code:200, msg:'success'})
+        const passwordMatch = await bcrypt.compare(password, data.password);
+        console.log("password match:",passwordMatch)
+        if(passwordMatch){
+           return res.status(200).send({data,code:200, msg:'Successfully Login',status:true})
+           
+        }else{
+            return res.status(404).send({data:{},msg:'Invalid Credentials',code:404,status:false})
+        }
+        
     }
     
 
@@ -291,7 +317,7 @@ const Courierauthenticate =  async (req,res) =>{
         console.log("data",data)
         res.status(200).send(data)
     }
-    
+ 
 
 }
 
@@ -330,8 +356,59 @@ const updateCourierphoto = async (req,res) =>{
            res.status(200).send({shop,code:200,msg:'success'})
            
     }
-   } 
+} 
 
+
+// forgot password
+const forGotPassword = async(req,res)=>{
+    try {
+
+        if(req.body.phone && req.body.password){
+            const courierData =  await Courier.findOne({
+                where:{
+                    phone:req.body.phone
+                }
+            })
+    
+            if(courierData){
+                const update  = Courier.update({
+                    password:await bcrypt.hash(req.body.password, 10),
+                },{
+                    where:{
+                        phone:req.body.phone
+                    }
+                }
+                )
+                return res.status(200).send({
+                    code:200,
+                    msg:'Password recovered successfully.',
+                    status:true
+                })
+            }else{
+                return res.status(400).send({
+                    code:400,
+                    msg:'Failed to recover your password.',
+                    status:false
+                })
+            }
+        }else{
+            return res.status(400).send({
+                code:400,
+                msg:'Filed can not be empty!!',
+                status:false
+            })
+        }
+     
+    } catch (error) {
+        console.log("error",error)
+        return res.status(400).send({
+            error
+        })
+       
+    }
+  
+  
+}
 
 
    //4 single shop image upload
@@ -354,7 +431,8 @@ module.exports ={
     getAllCourierByshopID,
     getCouriersproductsbyfilters,
     updateCourierphoto,
-    updateImageCourier
+    updateImageCourier,
+    forGotPassword
     
     
 }

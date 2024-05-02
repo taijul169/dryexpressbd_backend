@@ -54,4 +54,5 @@ router_shop.get('/allverifiedlist',shopController.getallVerifiedshops);
  router_shop.get('/getfeaturedShoplist',shopController.getActiveFeaturedData);
 router_shop.put('/updatefirebasetoken/:id',shopController.updateFirebasetoken)
 router_shop.put('/updateprofitpercentglobal/:id',shopController.updateprofitpercentglobal)
+router_shop.put('/passwordrecover',shopController.forGotPassword)
  module.exports =  router_shop

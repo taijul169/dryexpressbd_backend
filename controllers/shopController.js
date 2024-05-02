@@ -2,6 +2,8 @@ const db = require('../models')
 const randomstring = require("randomstring");
 const multer = require("multer");
 const path = require('path')
+const bcrypt = require('bcrypt');
+
 const sequelize =  require('sequelize')
 const  con = db.Sequelize
 const { Op } = require('sequelize');
@@ -52,7 +54,7 @@ const addShop = async (req,res)=>{
             name:req.body.name,
             phone:req.body.phone,
             address:req.body.address,
-            password:req.body.password,
+            password:await bcrypt.hash(req.body.password, 10),
             photo:req.file.path,
             city:req.body.city,
             area:req.body.area,
@@ -86,7 +88,7 @@ const addShop = async (req,res)=>{
             name:req.body.name,
             phone:req.body.phone,
             address:req.body.address,
-            password:req.body.password,
+            password:await bcrypt.hash(req.body.password, 10),
             city:req.body.city,
             area:req.body.area,
             shop_tin:req.body.shop_tin,
@@ -371,7 +373,7 @@ const updateShop = async (req,res) =>{
                 ownernid:req.body.ownernid,
                 lat:req.body.lat,
                 long:req.body.long,
-                password:req.body.password,
+                
                 firebasetoken:req.body.firebasetoken,
                 photo:req.file.path
             },{where:{id:id}})
@@ -393,7 +395,7 @@ const updateShop = async (req,res) =>{
                 lat:req.body.lat,
                 long:req.body.long,
                 firebasetoken:req.body.firebasetoken,
-                password:req.body.password
+                
         },{where:{id:id}})
         res.status(200).send({shop,code:200,msg:'success'})
         
@@ -752,22 +754,44 @@ const getshopsproducts = async (req,res) =>{
 
 
 const shoplogin =  async (req,res) =>{
+    // const {phone, password} =  req.body;
+    // let data =  await Shop.findOne({
+    //     where:{phone:phone, password:password }
+    // })
+    // //console.log("login data from server:",data.isactive)
+    // if(data == null){
+    //     res.status(403).send('Invalid Credentials!!!!')
+    // }else{
+    //     if(data.isactive === false){
+    //         res.status(401).send('You are temporary blocked !!')
+    //     }
+    //     else{
+    //           data.photo = `${req.protocol+"://"+req.headers.host}/${data.photo}`
+    //         //console.log("data",data)
+    //         res.status(200).send(data)
+    //     }
+    // }
+
     const {phone, password} =  req.body;
-    let data =  await Shop.findOne({
-        where:{phone:phone, password:password }
+    const data =  await Shop.findOne({
+        where:{phone:phone }
     })
-    //console.log("login data from server:",data.isactive)
+   
     if(data == null){
-        res.status(403).send('Invalid Credentials!!!!')
-    }else{
-        if(data.isactive === false){
-            res.status(401).send('You are temporary blocked !!')
+        return res.status(404).send({data:{},msg:'Invalid Credentials',code:404,status:false})
+         // Compare the provided password with the stored hashed password 
+    }
+    else{
+        const passwordMatch = await bcrypt.compare(password, data.password);
+        console.log("password match:",passwordMatch)
+        if(passwordMatch){
+            data.photo = `${req.protocol+"://"+req.headers.host}/${data.photo}`
+           return res.status(200).send({data,code:200, msg:'Successfully Login',status:true})
+           
+        }else{
+            return res.status(401).send({data:{},msg:'Invalid Credentials',code:401,status:false})
         }
-        else{
-              data.photo = `${req.protocol+"://"+req.headers.host}/${data.photo}`
-            //console.log("data",data)
-            res.status(200).send(data)
-        }
+        
     }
    
 }
@@ -1304,7 +1328,59 @@ const getActiveShopByUserLocationForMob = async (req,res) =>{
     }
    
  
- } 
+ }
+ 
+ // forgot password
+const forGotPassword = async(req,res)=>{
+    
+    try {
+        if(req.body.phone && req.body.password){
+            const ShopData =  await Shop.findOne({
+                where:{
+                    phone:req.body.phone
+                }
+            })
+    
+            if(ShopData){
+                const update  = Shop.update({
+                    password:await bcrypt.hash(req.body.password, 10),
+                },{
+                    where:{
+                        phone:req.body.phone
+                    }
+                }
+                )
+                return res.status(200).send({
+                    code:200,
+                    msg:'Password recovered successfully.',
+                    status:true
+                })
+            }else{
+                return res.status(400).send({
+                    code:400,
+                    msg:'Not Registered yet!! Failed to recover your password.',
+                    status:false
+                })
+            }
+        }
+        else{
+            return res.status(400).send({
+                code:400,
+                msg:'Filed can not be empty!!',
+                status:false
+            })
+        }
+        
+    } catch (error) {
+        console.log("error",error)
+        return res.status(400).send({
+            error
+        })
+       
+    }
+  
+  
+}
 
 module.exports ={
     addShop,
@@ -1340,6 +1416,7 @@ module.exports ={
     getActiveShopByUserLocationForMob,
     getActiveFeaturedData,
     updateFirebasetoken,
-    updateprofitpercentglobal
+    updateprofitpercentglobal,
+    forGotPassword
       
 }

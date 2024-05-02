@@ -13,7 +13,8 @@ module.exports =  (sequelize, DataTypes) =>{
         },
         amount:{
             type:DataTypes.INTEGER,
-            allowNull:false
+            allowNull:false,
+            defaultValue:0
         },
         paidtolaundry:{
             type:DataTypes.BOOLEAN,

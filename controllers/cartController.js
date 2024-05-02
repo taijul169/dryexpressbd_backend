@@ -221,7 +221,11 @@ const updateCartQuantity  = async (req,res)=>{
         cartitem_id:req.body.id
     }})  
        
-     res.status(200).send(update)  
+     res.status(200).send({
+         code:200,
+         msg:"Updated Succesffully",
+         status:true
+     })  
    } catch (error) {
        res.send(error)
        console.log("error",error)

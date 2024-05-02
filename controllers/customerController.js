@@ -4,6 +4,7 @@ const multer = require("multer")
 // create main Model
 const Customer = db.customers
 const path = require('path')
+const bcrypt = require('bcrypt');
 // main work
 // upload image controller
 const storage =  multer.diskStorage({
@@ -37,7 +38,7 @@ const addCustomer = async (req,res)=>{
                 isactive:req.body.published ? req.body.published :true,
                 dateofbirth:req.body.dateofbirth,
                 address:req.body.address,
-                password:req.body.password,
+                password:await bcrypt.hash(req.body.password, 10),
                 photo:req.file.path,
                 jwtoken:randomstring.generate(),
                 firebasetoken:req.body.firebasetoken ?req.body.firebasetoken:null
@@ -59,17 +60,17 @@ const addCustomer = async (req,res)=>{
                 isactive:req.body.published ? req.body.published :true,
                 dateofbirth:req.body.dateofbirth,
                 address:req.body.address,
-                password:req.body.password,
+                password:await bcrypt.hash(req.body.password, 10),
                 jwtoken:randomstring.generate(),
                 firebasetoken:req.body.firebasetoken ?req.body.firebasetoken:null
             }
             const FindCustomer =  await Customer.findOne({where:{phone:info.phone}})
             console.log("Findcustomer",FindCustomer)
             if(FindCustomer){
-                res.status(400).send({msg:"Customer already exist!!"})
+                res.status(400).send({customer:null,msg:"Customer already exist!!",code:400,status:false})
             }else{
                 const customer = await Customer.create(info)
-                res.status(201).send({customer,msg:'success',code:201})
+                res.status(201).send({customer,msg:'success',code:201,status:true})
                 console.log(customer)
             }
         }
@@ -84,10 +85,10 @@ const NumberExistOrNot = async(req,res) =>{
         where:{phone:phone}
        })
     if(customer){
-        res.status(400).send({msg:'user already exist!!'}) 
+        res.status(400).send({msg:'user already exist!!',code:400,status:false}) 
     }
     else{
-        res.status(200).send({msg:'OK'})
+        res.status(200).send({msg:'OK',code:200,status:true})
     }   
 }
 
@@ -131,12 +132,11 @@ const updateCustomer = async (req,res) =>{
             gender:req.body.gender,
             dateofbirth:req.body.dateofbirth,
             address:req.body.address,
-            password:req.body.password,
             photo:req.file.path,
             firebasetoken:req.body.firebasetoken
         }
         const customer = await Customer.update(info,{where:{id:id}})
-        res.status(200).send({customer,code:200,msg:'Success'})
+        res.status(200).send({code:200,msg:'Success',status:true})
         
     }else{
         let info ={
@@ -145,12 +145,11 @@ const updateCustomer = async (req,res) =>{
             gender:req.body.gender,
             dateofbirth:req.body.dateofbirth,
             address:req.body.address,
-            password:req.body.password,
             firebasetoken:req.body.firebasetoken
            
         }
         const customer = await Customer.update(info,{where:{id:id}})
-        res.status(200).send({customer,code:200,msg:'Success'})
+        res.status(200).send({code:200,msg:'Success',status:true})
         
     }
     
@@ -206,8 +205,9 @@ const getActiveCustomer = async (req,res) =>{
 const customerauthenticate =  async (req,res) =>{
     const sicretKey =  req.params.jwtoken;
     const data =  await Customer.findOne({
-        where:{jwtoken:sicretKey }
+        where:{jwtoken:`${sicretKey}` }
     })
+    console.log("customer authentication data:",data)
     if(data == null){
         res.status(404).send('permission denied!!!!')
     }
@@ -221,20 +221,110 @@ const customerauthenticate =  async (req,res) =>{
 }
 
 const customerlogin =  async (req,res) =>{
+    // const {phone, password} =  req.body;
+    // const data =  await Customer.findOne({
+    //     where:{phone:phone, password:password }
+    // })
+    // if(data == null){
+    //     res.status(401).send({
+    //         code:401,
+    //         msg:'Invlaid Credentials',
+    //         status:false,
+    //         data:{}
+    //     })
+    // }
+    // else{
+    //     const jwtoken = randomstring.generate()
+    //     const updatecustomer =  Customer.update({jwtoken:jwtoken},{
+    //          where:{
+    //              id:data.id
+    //          }
+    //      })
+    //      data.jwtoken = jwtoken
+    //     //console.log("data",data)
+    //     res.status(200).send({
+    //         code:200,
+    //         msg:'Successfully Login',
+    //         status:true,
+    //         data:data
+    //     })
+    // }
     const {phone, password} =  req.body;
     const data =  await Customer.findOne({
-        where:{phone:phone, password:password }
+        where:{phone:phone }
     })
+
     if(data == null){
-        res.status(404).send('data not found!!!!')
+        return res.status(404).send({data:{},msg:'Invalid Credentials',code:404,status:false})
+         // Compare the provided password with the stored hashed password 
     }
     else{
-        //console.log("data",data)
-        res.status(200).send(data)
+        const passwordMatch = await bcrypt.compare(password, data.password);
+        console.log("password match:",passwordMatch)
+        if(passwordMatch){
+           return res.status(200).send({data,code:200, msg:'Successfully Login',status:true})
+           
+        }else{
+            return res.status(401).send({data:{},msg:'Invalid Credentials',code:401,status:false})
+        }
+        
     }
-    
 
 }
+
+
+// forgot password
+const forGotPassword = async(req,res)=>{
+    
+    try {
+        if(req.body.phone && req.body.password){
+            const CustomerData =  await Customer.findOne({
+                where:{
+                    phone:req.body.phone
+                }
+            })
+    
+            if(CustomerData){
+                const update  = Customer.update({
+                    password:await bcrypt.hash(req.body.password, 10),
+                },{
+                    where:{
+                        phone:req.body.phone
+                    }
+                }
+                )
+                return res.status(200).send({
+                    code:200,
+                    msg:'Password recovered successfully.',
+                    status:true
+                })
+            }else{
+                return res.status(400).send({
+                    code:400,
+                    msg:'Not Registered yet!! Failed to recover your password.',
+                    status:false
+                })
+            }
+        }
+        else{
+            return res.status(400).send({
+                code:400,
+                msg:'Filed can not be empty!!',
+                status:false
+            })
+        }
+        
+    } catch (error) {
+        console.log("error",error)
+        return res.status(400).send({
+            error
+        })
+       
+    }
+  
+  
+}
+
 
 module.exports ={
     addCustomer,
@@ -247,7 +337,8 @@ module.exports ={
     customerlogin,
     updateCustomerstatus,
     NumberExistOrNot,
-    upload
+    upload,
+    forGotPassword
    
     
 }

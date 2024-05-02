@@ -27,7 +27,7 @@ const addAccept = async (req,res)=>{
         const orderstatus = await Orderstatus.create(info)
         res.status(200).send({orderstatus,code:201,msg:'success'})
     } catch (error) {
-        console.log(error)
+        console.log({error})
         res.status(400).send({msg:'Bad Request!!' ,error})
     }
     

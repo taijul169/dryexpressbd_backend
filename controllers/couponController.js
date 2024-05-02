@@ -80,7 +80,7 @@ const validateCouponCode =  async (req,res)=>{
         })
         
        if(data && data.isActive == true){
-           res.status(200).send({code:200,msg:'Valild Code'})
+           res.status(200).send({code:200,msg:'Valild Code',coupondata:data})
        }else{
         res.status(400).send({code:400,msg:'Invalid Code'})
        } 

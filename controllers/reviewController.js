@@ -7,17 +7,22 @@ const Shop = db.shops
 // function
 // 1.add review
 const addReview = async(req,res)=>{
-    console.log("shop id:",req.params.shop_id)
+    try {
+        let data = {
+            rating:req.body.rating,
+            description:req.body.description,
+            shop_id:req.body.shop_id,
+            user_id:req.body.user_id
+        }
+      
+        const review = await Review.create(data)
+        res.status(200).send({review,code:200,msg:'success'})
+    } catch (error) {
+        console.log("error",error)
+    }
+   // console.log("shop id:",req.params.shop_id)
 
-  let data = {
-      rating:req.body.rating,
-      description:req.body.description,
-      shop_id:req.body.shop_id,
-      user_id:req.body.user_id
-  }
 
-  const review = await Review.create(data)
-  res.status(200).send({review,code:200,msg:'success'})
 }
 
 // 2.Get all Reviews

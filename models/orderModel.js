@@ -37,7 +37,8 @@ module.exports =  (sequelize, DataTypes) =>{
             type:DataTypes.STRING
         },
         deliverycharge:{
-          type:DataTypes.INTEGER
+          type:DataTypes.INTEGER,
+          defaultValue:0
         },
         total:{
             type:DataTypes.INTEGER
@@ -98,6 +99,18 @@ module.exports =  (sequelize, DataTypes) =>{
             defaultValue:0
         },
         grand_total:{
+            type:DataTypes.INTEGER,
+            defaultValue:0
+        },
+        couponcode:{ 
+            type:DataTypes.STRING,
+            defaultValue:null
+        },
+        couponpercent:{ 
+            type:DataTypes.INTEGER,
+            defaultValue:null
+        },
+        servicecharge:{ 
             type:DataTypes.INTEGER,
             defaultValue:0
         },

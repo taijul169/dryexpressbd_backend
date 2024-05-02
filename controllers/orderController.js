@@ -2,6 +2,13 @@ const db = require('../models')
 const { Op, json } = require('sequelize');
 const Sequelize =  require('sequelize')
 //const { products } = require('../models');
+// sms gateway Credentials
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0;
+let apikey = "aa4052ea47d93fc0b964754ca912d370";
+let sender = 8809617612051;
+
+
+
 // create main Model
 const OrderTable = db.orders
 const OrderedProduct = db.orderedproduct
@@ -163,6 +170,9 @@ const addOrderlatest = async (req,res)=>{
         isactive:req.body.isactive ? req.body.isactive:true,
         isdelivered:req.body.isdelivered ? req.body.isdelivered :false,
         paymentstatus:req.body.paymentstatus ? req.body.paymentstatus :false,
+        couponcode:req.body.couponcode ? req.body.couponcode :null,
+        servicecharge:req.body.servicecharge ? req.body.servicecharge :null,
+        couponpercent:req.body.couponpercent ? req.body.couponpercent :null,
         paymentmethod:req.body.paymentmethod,
         deliverycharge:req.body.deliverycharge,
         total:req.body.total,
@@ -415,16 +425,22 @@ const getDeliveredOrder = async (req,res) =>{
 //  get shop's products
 
 const getOrdersbyuserid = async (req,res) =>{
-    let id = req.params.userid;
-    let data = await OrderTable.findAll({
-       where: { user_id:id },
-       order: [
-        ['id', 'DESC'],
-       
-      ],
-    })
+    try {
+        let id = req.params.userid;
+        let data = await OrderTable.findAll({
+           where: { user_id:id },
+           order: [
+            ['id', 'DESC'],
+           
+          ],
+        })
+      
+        res.status(200).send(data)
+    } catch (error) {
+        res.status(400).send({error})
+        console.log(error)
+    }
   
-    res.status(200).send(data)
 }
 // get all shops by customer id
 // get all shops by customer id
@@ -645,6 +661,15 @@ const orderStatusUpdate = async(req,res) =>{
     const notiData = await Notification.findOne({where:{
         order_id:order_id
     }})
+
+
+    //   const singleorderdata = await OrderTable.findOne({where:{
+    //       id:order_id
+    //   }})
+    // sending sms
+    
+  
+    //console.log(product)
     if(status == 'Received'){
         const order =  await OrderTable.update({currentstatus:status},{where:{id:order_id}})
         const orderstatus =  await OrderStatus.update({currentstatus:status,receivedtime:time},{where:{order_id:order_id}})
@@ -689,7 +714,6 @@ const orderStatusUpdate = async(req,res) =>{
             shop_id:notiData.shop_id,
             noti_type:'order',
             order_status:'Pickedup'
-            
         
         })
         res.status(200).send({order,msg:'success',code:200})
@@ -726,7 +750,6 @@ const orderStatusUpdate = async(req,res) =>{
         })
         res.status(200).send({order,msg:'success',code:200})
     }
-    //console.log(product)
 }
 
 const updatePaymentStatus =  async(req,res) =>{

@@ -18,5 +18,9 @@ router_customer.get('/authenticate/:jwtoken',customerController.customerauthenti
 
 //  login route
 router_customer.post('/login',customerController.customerlogin);
+router_customer.put('/passwordrecover',customerController.forGotPassword);
+
+
+
 
  module.exports =  router_customer

@@ -19,14 +19,15 @@ module.exports ={
     HOST:'localhost',
     USER:"root",
     PASSWORD:"rootpassword",
-    DB:"dryexpressbd",
+    DB:"dryexpress_local",
     dialect:'mysql',
 
     pool:{
         max:5,
         min:0,
         acquire:30000,
-        idle:10000
+        idle:10000,
+        evict:1000
     }
 
 

@@ -48,7 +48,8 @@ module.exports =  (sequelize, DataTypes) =>{
         },
         discount_percent:{
             type:DataTypes.INTEGER,
-            defaultValue:0
+            defaultValue:0,
+            allowNull:false
         }
 
     })

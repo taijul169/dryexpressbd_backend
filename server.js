@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app =  express();
+
 // var corOptions ={
 //     origin:"http://localhost:8080"
 // }
@@ -41,6 +42,7 @@ const account = require('./routes/accountRouter')
 const offeruser =  require('./routes/offeruserRouter')
 const offer =  require('./routes/offerRouter')
 const coupon =  require('./routes/couponRouter')
+const membership =  require('./routes/membershipRouter')
 app.use('/api/customer',router_customer);
 app.use('/api/shop',router_shop);
 app.use('/api/products',router);
@@ -62,13 +64,17 @@ app.use('/api/account',account)
 app.use('/api/offeruser',offeruser)
 app.use('/api/offer',offer)
 app.use('/api/coupon',coupon)
+app.use('/api/membership',membership)
 // testing api
 app.get("/",(req,res)=>{
     res.json({message:"hello from api" })
 })
 
+
+
+
 // port
-const PORT = 8000
+const PORT = 8050
 
 // server
 app.listen(PORT,'0.0.0.0',()=>{

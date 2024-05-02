@@ -34,4 +34,7 @@ router_courier.get('/allblockedlist',courierController.getallBlockedCouriers);
  router_courier.put('/updatecourierimage/:id',courierController.upload,courierController.updateImageCourier)
 
 
+ router_courier.put('/passwordrecover',courierController.forGotPassword)
+
+
  module.exports =  router_courier

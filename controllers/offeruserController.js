@@ -15,6 +15,7 @@ const addofferuser = async (req,res)=>{
             email:req.body.email?req.body.email:null,
             phone:req.body.phone?req.body.phone:null,
             address:req.body.address,
+            offer_id:req.body.offer_id
         }
         console.log("req.body",req.body)
         const alreadyExist  =  await Offeruser.findOne({
@@ -61,6 +62,15 @@ const getRegiseredUserwithlimit = async (req,res) =>{
     })
     res.status(200).send(users)
 }
+
+const getSingleRegisteredUser = async (req,res)=>{
+    let user =  await Offeruser.findOne({
+        where:{
+            id:req.params.id
+        }
+    })
+    res.status(200).send(user)
+}
 // main work
 
 
@@ -68,7 +78,8 @@ const getRegiseredUserwithlimit = async (req,res) =>{
 module.exports ={
     addofferuser,
     getRegiseredUser,
-    getRegiseredUserwithlimit
+    getRegiseredUserwithlimit,
+    getSingleRegisteredUser
     
     
 }

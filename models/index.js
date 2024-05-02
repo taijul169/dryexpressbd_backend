@@ -66,6 +66,7 @@ db.offeruser = require('./offeruserModel')(sequelize,DataTypes)
 db.orderedservices =  require('./orderedserviceModel')(sequelize,DataTypes)
 db.offers = require('./offerModel')(sequelize,DataTypes)
 db.coupons =  require('./couponModel')(sequelize,DataTypes)
+db.memberships =  require('./membershipModel')(sequelize,DataTypes)
 db.sequelize.sync({
     force:false,
 })
@@ -243,7 +244,7 @@ db.paymenthistory.belongsTo(db.orders,{
          as:'customer'
      })
    
-// 1 to many Relation between shop and products
+//1 to many Relation between shop and products
 db.shops.hasMany(db.products,{
     foreignKey:'shop_id',
     as:'product'
@@ -253,7 +254,7 @@ db.products.belongsTo(db.shops,
     {
         foreignKey:'shop_id',
         as:'shop'
-    })
+   })
 
 
  // 1 to many Relation between shop and courier
